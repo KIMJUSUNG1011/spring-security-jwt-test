@@ -1,5 +1,6 @@
 package com.ssafy.jwttutorial.service;
 
+import com.ssafy.jwttutorial.entity.User;
 import com.ssafy.jwttutorial.repository.UserRepository;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -24,6 +25,7 @@ public class CustomUserDetailsService implements UserDetailsService {
     @Override
     @Transactional
     // 로그인 시 DB 에서 유저 정보를 권한 정보와 함께 가지고 옴
+    // 해당 정보를 기반으로 UserDetails.User 객체를 생성해서 리턴
     public UserDetails loadUserByUsername(final String username) {
         return userRepository.findOneWithAuthoritiesByUsername(username)
                 .map(user -> createUser(username, user))
@@ -39,6 +41,7 @@ public class CustomUserDetailsService implements UserDetailsService {
                 .map(authority -> new SimpleGrantedAuthority(authority.getAuthorityName()))
                 .collect(Collectors.toList());
 
+        // 유저 이름, 비밀번호, 권한 정보를 가지고 유저 객체를 리턴해줌
         return new org.springframework.security.core.userdetails.User(user.getUsername(),
                 user.getPassword(),
                 grantedAuthorities);
